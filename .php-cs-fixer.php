@@ -6,7 +6,7 @@ This file is part of Hapi.
 @link     https://www.nasus.top
 @document https://wiki.nasus.top
 @contact  xupengfei@xupengfei.net
-@license  https://github.com/nasustop/hapi-memcached/blob/master/LICENSE
+@license  https://github.com/nasustop/hapi-cache/blob/master/LICENSE
 EOF;
 
 return (new PhpCsFixer\Config())
@@ -23,13 +23,13 @@ return (new PhpCsFixer\Config())
             'location' => 'after_declare_strict',
         ],
         'array_syntax' => [
-            'syntax' => 'short'
+            'syntax' => 'short',
         ],
         'list_syntax' => [
-            'syntax' => 'short'
+            'syntax' => 'short',
         ],
         'concat_space' => [
-            'spacing' => 'one'
+            'spacing' => 'one',
         ],
         'blank_line_before_statement' => [
             'statements' => [
@@ -38,7 +38,7 @@ return (new PhpCsFixer\Config())
         ],
         'general_phpdoc_annotation_remove' => [
             'annotations' => [
-                'author'
+                'author',
             ],
         ],
         'ordered_imports' => [
