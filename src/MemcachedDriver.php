@@ -31,7 +31,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         $this->memcached = $container->get(MemcachedFactory::class)->get($config['pool'] ?? 'default');
     }
 
-    public function get($key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         $res = $this->memcached->get($this->getCacheKey($key));
         if ($res === false) {
@@ -41,7 +41,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $this->packer->unpack($res);
     }
 
-    public function set($key, $value, $ttl = null): bool
+    public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
     {
         $seconds = $this->secondsUntil($ttl);
         $res = $this->packer->pack($value);
@@ -52,7 +52,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $this->memcached->set($this->getCacheKey($key), $res);
     }
 
-    public function delete($key): bool
+    public function delete(string $key): bool
     {
         return (bool) $this->memcached->delete($this->getCacheKey($key));
     }
@@ -62,11 +62,11 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $this->memcached->flush();
     }
 
-    public function getMultiple($keys, $default = null)
+    public function getMultiple($keys, mixed $default = null): iterable
     {
         $cacheKeys = array_map(function ($key) {
             return $this->getCacheKey($key);
-        }, (array)$keys);
+        }, $keys);
 
         $values = $this->memcached->getMulti($cacheKeys);
         $result = [];
@@ -77,7 +77,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $result;
     }
 
-    public function setMultiple($values, $ttl = null)
+    public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
     {
         if (! is_array($values)) {
             throw new InvalidArgumentException('The values is invalid!');
@@ -100,7 +100,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $this->memcached->setMulti($cacheKeys);
     }
 
-    public function deleteMultiple($keys)
+    public function deleteMultiple($keys): bool
     {
         $cacheKeys = array_map(function ($key) {
             return $this->getCacheKey($key);
@@ -109,7 +109,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return (bool) $this->memcached->deleteMulti($cacheKeys);
     }
 
-    public function has($key)
+    public function has(string $key): bool
     {
         $res = $this->memcached->get($this->getCacheKey($key));
         return ! ($res === false);
@@ -143,7 +143,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return array_keys($cacheData);
     }
 
-    public function delKey(string $collector, ...$key): bool
+    public function delKey(string $collector, string ...$key): bool
     {
         $cacheData = $this->get($collector, []);
         foreach ($key as $k) {
