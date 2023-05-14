@@ -2,6 +2,7 @@
     "name": "nasustop/hapi-cache",
     "type": "library",
     "license": "MIT",
+    "version": "2.2.1",
     "keywords": [
         "php",
         "hyperf"
@@ -10,7 +11,10 @@
     "autoload": {
         "psr-4": {
             "Nasustop\\HapiCache\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
