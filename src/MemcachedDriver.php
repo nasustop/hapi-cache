@@ -11,7 +11,6 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiCache;
 
-use DateInterval;
 use Hyperf\Cache\Driver\Driver;
 use Hyperf\Cache\Driver\KeyCollectorInterface;
 use Hyperf\Cache\Exception\InvalidArgumentException;
@@ -31,7 +30,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         $this->memcached = $container->get(MemcachedFactory::class)->get($config['pool'] ?? 'default');
     }
 
-    public function get(string $key, mixed $default = null): mixed
+    public function get($key, $default = null)
     {
         $res = $this->memcached->get($this->getCacheKey($key));
         if ($res === false) {
@@ -41,7 +40,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $this->packer->unpack($res);
     }
 
-    public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
+    public function set($key, $value, $ttl = null)
     {
         $seconds = $this->secondsUntil($ttl);
         $res = $this->packer->pack($value);
@@ -52,7 +51,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $this->memcached->set($this->getCacheKey($key), $res);
     }
 
-    public function delete(string $key): bool
+    public function delete($key)
     {
         return (bool) $this->memcached->delete($this->getCacheKey($key));
     }
@@ -62,11 +61,11 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $this->memcached->flush();
     }
 
-    public function getMultiple($keys, mixed $default = null): iterable
+    public function getMultiple($keys, $default = null)
     {
         $cacheKeys = array_map(function ($key) {
             return $this->getCacheKey($key);
-        }, $keys);
+        }, (array) $keys);
 
         $values = $this->memcached->getMulti($cacheKeys);
         $result = [];
@@ -77,7 +76,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $result;
     }
 
-    public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
+    public function setMultiple($values, $ttl = null)
     {
         if (! is_array($values)) {
             throw new InvalidArgumentException('The values is invalid!');
@@ -100,16 +99,16 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $this->memcached->setMulti($cacheKeys);
     }
 
-    public function deleteMultiple($keys): bool
+    public function deleteMultiple($keys)
     {
         $cacheKeys = array_map(function ($key) {
             return $this->getCacheKey($key);
-        }, $keys);
+        }, (array) $keys);
 
         return (bool) $this->memcached->deleteMulti($cacheKeys);
     }
 
-    public function has(string $key): bool
+    public function has($key)
     {
         $res = $this->memcached->get($this->getCacheKey($key));
         return ! ($res === false);
@@ -143,7 +142,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return array_keys($cacheData);
     }
 
-    public function delKey(string $collector, string ...$key): bool
+    public function delKey(string $collector, ...$key): bool
     {
         $cacheData = $this->get($collector, []);
         foreach ($key as $k) {

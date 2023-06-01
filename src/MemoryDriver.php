@@ -11,7 +11,6 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiCache;
 
-use DateInterval;
 use Hyperf\Cache\Driver\Driver;
 use Hyperf\Cache\Driver\KeyCollectorInterface;
 use Hyperf\Cache\Exception\InvalidArgumentException;
@@ -44,7 +43,7 @@ class MemoryDriver extends Driver implements KeyCollectorInterface
         $this->clean_size = $config['clean_size'] ?? 0;
     }
 
-    public function get(string $key, mixed $default = null): mixed
+    public function get($key, $default = null)
     {
         $res = $this->table->get($key);
         if ($res === false) {
@@ -57,7 +56,7 @@ class MemoryDriver extends Driver implements KeyCollectorInterface
         return $this->packer->unpack($res['data']);
     }
 
-    public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
+    public function set($key, $value, $ttl = null)
     {
         $value = $this->packer->pack($value);
         if (mb_strlen($value) > $this->row_size) {
@@ -72,7 +71,7 @@ class MemoryDriver extends Driver implements KeyCollectorInterface
         ]);
     }
 
-    public function delete(string $key): bool
+    public function delete($key)
     {
         return $this->table->del($key);
     }
@@ -89,7 +88,7 @@ class MemoryDriver extends Driver implements KeyCollectorInterface
         return true;
     }
 
-    public function getMultiple(iterable $keys, mixed $default = null): iterable
+    public function getMultiple($keys, $default = null)
     {
         $result = [];
         foreach ($keys as $key) {
@@ -98,7 +97,7 @@ class MemoryDriver extends Driver implements KeyCollectorInterface
         return $result;
     }
 
-    public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
+    public function setMultiple($values, $ttl = null)
     {
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl);
@@ -107,7 +106,7 @@ class MemoryDriver extends Driver implements KeyCollectorInterface
         return true;
     }
 
-    public function deleteMultiple(iterable $keys): bool
+    public function deleteMultiple($keys)
     {
         foreach ($keys as $key) {
             $this->delete($key);
@@ -115,7 +114,7 @@ class MemoryDriver extends Driver implements KeyCollectorInterface
         return true;
     }
 
-    public function has(string $key): bool
+    public function has($key)
     {
         $res = $this->get($key, false);
         return ! ($res === false);
@@ -158,7 +157,7 @@ class MemoryDriver extends Driver implements KeyCollectorInterface
         return array_keys($cacheData);
     }
 
-    public function delKey(string $collector, string ...$key): bool
+    public function delKey(string $collector, ...$key): bool
     {
         $cacheData = $this->get($collector, []);
         foreach ($key as $k) {
