@@ -11,12 +11,19 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiCache;
 
+use Nasustop\HapiCache\Listener\BeforeMainServerStartListener;
+use Nasustop\HapiCache\Listener\BeforeWorkerStartListener;
+
 class ConfigProvider
 {
     public function __invoke(): array
     {
         return [
             'dependencies' => [
+            ],
+            'listeners' => [
+                BeforeMainServerStartListener::class,
+                BeforeWorkerStartListener::class,
             ],
             'commands' => [
             ],

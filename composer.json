@@ -2,7 +2,7 @@
     "name": "nasustop/hapi-cache",
     "type": "library",
     "license": "MIT",
-    "version": "3.0.1",
+    "version": "3.0.2",
     "keywords": [
         "php",
         "hyperf"
@@ -25,6 +25,8 @@
         "php": ">=8.0",
         "hyperf/cache": "^3.0",
         "hyperf/contract": "^3.0",
+        "hyperf/event": "~3.0.0",
+        "hyperf/framework": "~3.0.0",
         "hyperf/redis": "^3.0",
         "nasustop/hapi-memcached": "^3.0"
     },
