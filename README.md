@@ -26,7 +26,7 @@ declare(strict_types=1);
 return [
     'default' => [
         'driver' => Hyperf\Cache\Driver\RedisDriver::class,
-        'packer' => Hyperf\Utils\Packer\PhpSerializerPacker::class,
+        'packer' => Hyperf\Codec\Packer\PhpSerializerPacker::class,
         'prefix' => 'c:',
     ],
 ];
@@ -41,19 +41,19 @@ declare(strict_types=1);
 return [
     'default' => [
         'driver' => \Nasustop\HapiCache\RedisDriver::class,
-        'packer' => Hyperf\Utils\Packer\PhpSerializerPacker::class,
+        'packer' => Hyperf\Codec\Packer\PhpSerializerPacker::class,
         'prefix' => 'c:',
         'pool' => 'default',
     ],
     'memcached' => [
         'driver' => \Nasustop\HapiCache\MemcachedDriver::class,
-        'packer' => Hyperf\Utils\Packer\PhpSerializerPacker::class,
+        'packer' => Hyperf\Codec\Packer\PhpSerializerPacker::class,
         'prefix' => 'c:',
         'pool' => 'default',
     ],
     'memory' => [
         'driver' => \Nasustop\HapiCache\MemoryDriver::class,
-        'packer' => Hyperf\Utils\Packer\PhpSerializerPacker::class,
+        'packer' => Hyperf\Codec\Packer\PhpSerializerPacker::class,
         'size' => 10240, // 最大缓存行数
         'memory_size' => 1024 * 1024 * 1024 * 2, // 最大占用内存
         'row_size' => 4096, // 每个缓存的最大长度
