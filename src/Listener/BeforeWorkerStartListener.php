@@ -24,6 +24,33 @@ class BeforeWorkerStartListener implements ListenerInterface
     {
     }
 
+    /**
+     * 找出 cache 配置中使用 MemoryDriver 的 store。
+     *
+     * Hyperf 3.x 支持「default 为 store 名 + stores 为定义」的两段式配置，
+     * 此时 cache 下会存在字符串值（如 'default' => 'default'），
+     * 不能直接当作数组访问 $value['driver']（否则 TypeError）。
+     */
+    private function resolveMemoryStoreConfig(): array
+    {
+        $cache = (array) $this->config->get('cache', []);
+
+        // 新式配置：store 定义在 cache.stores 下
+        $stores = $cache['stores'] ?? null;
+        if (! is_array($stores)) {
+            // 旧式配置：cache 直接是 store 定义集合
+            $stores = $cache;
+        }
+
+        foreach ($stores as $value) {
+            if (is_array($value) && ($value['driver'] ?? null) === MemoryDriver::class) {
+                return $value;
+            }
+        }
+
+        return [];
+    }
+
     public function listen(): array
     {
         return [
@@ -33,13 +60,7 @@ class BeforeWorkerStartListener implements ListenerInterface
 
     public function process(object $event): void
     {
-        $cache = $this->config->get('cache', []);
-        $config = [];
-        foreach ($cache as $value) {
-            if ($value['driver'] === MemoryDriver::class) {
-                $config = $value;
-            }
-        }
+        $config = $this->resolveMemoryStoreConfig();
         if (empty($config)) {
             return;
         }
