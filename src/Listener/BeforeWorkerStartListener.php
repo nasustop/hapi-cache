@@ -9,6 +9,7 @@ declare(strict_types=1);
  * @contact  xupengfei@xupengfei.net
  * @license  https://github.com/nasustop/hapi-cache/blob/master/LICENSE
  */
+
 namespace Nasustop\HapiCache\Listener;
 
 use Hyperf\Contract\ConfigInterface;
@@ -20,8 +21,28 @@ use Swoole\Table;
 
 class BeforeWorkerStartListener implements ListenerInterface
 {
-    public function __construct(private ConfigInterface $config)
+    public function __construct(private ConfigInterface $config) {}
+
+    public function listen(): array
     {
+        return [
+            BeforeWorkerStart::class,
+        ];
+    }
+
+    public function process(object $event): void
+    {
+        $config = $this->resolveMemoryStoreConfig();
+        if (empty($config)) {
+            return;
+        }
+        if ($event instanceof BeforeWorkerStart) {
+            ProcessData::$work_id = $event->workerId;
+            $table = $event->server->cache_table ?? null;
+            if ($table instanceof Table) {
+                ProcessData::$table = $table;
+            }
+        }
     }
 
     /**
@@ -49,27 +70,5 @@ class BeforeWorkerStartListener implements ListenerInterface
         }
 
         return [];
-    }
-
-    public function listen(): array
-    {
-        return [
-            BeforeWorkerStart::class,
-        ];
-    }
-
-    public function process(object $event): void
-    {
-        $config = $this->resolveMemoryStoreConfig();
-        if (empty($config)) {
-            return;
-        }
-        if ($event instanceof BeforeWorkerStart) {
-            ProcessData::$work_id = $event->workerId;
-            $table = $event->server->cache_table ?? null;
-            if ($table instanceof Table) {
-                ProcessData::$table = $table;
-            }
-        }
     }
 }

@@ -9,6 +9,7 @@ declare(strict_types=1);
  * @contact  xupengfei@xupengfei.net
  * @license  https://github.com/nasustop/hapi-cache/blob/master/LICENSE
  */
+
 namespace Nasustop\HapiCache\Listener;
 
 use Hyperf\Contract\ConfigInterface;
@@ -19,8 +20,28 @@ use Swoole\Table;
 
 class BeforeMainServerStartListener implements ListenerInterface
 {
-    public function __construct(private ConfigInterface $config)
+    public function __construct(private ConfigInterface $config) {}
+
+    public function listen(): array
     {
+        return [
+            BeforeMainServerStart::class,
+        ];
+    }
+
+    public function process(object $event): void
+    {
+        $config = $this->resolveMemoryStoreConfig();
+        if (empty($config)) {
+            return;
+        }
+        if ($event instanceof BeforeMainServerStart) {
+            $table = new Table($config['size'] ?? 1024);
+            $table->column('data', Table::TYPE_STRING, $config['row_size'] ?? 1024);
+            $table->column('ttl', Table::TYPE_INT);
+            $table->create();
+            $event->server->cache_table = $table;
+        }
     }
 
     /**
@@ -48,27 +69,5 @@ class BeforeMainServerStartListener implements ListenerInterface
         }
 
         return [];
-    }
-
-    public function listen(): array
-    {
-        return [
-            BeforeMainServerStart::class,
-        ];
-    }
-
-    public function process(object $event): void
-    {
-        $config = $this->resolveMemoryStoreConfig();
-        if (empty($config)) {
-            return;
-        }
-        if ($event instanceof BeforeMainServerStart) {
-            $table = new Table($config['size'] ?? 1024);
-            $table->column('data', Table::TYPE_STRING, $config['row_size'] ?? 1024);
-            $table->column('ttl', Table::TYPE_INT);
-            $table->create();
-            $event->server->cache_table = $table;
-        }
     }
 }

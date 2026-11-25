@@ -9,7 +9,12 @@ declare(strict_types=1);
  * @contact  xupengfei@xupengfei.net
  * @license  https://github.com/nasustop/hapi-cache/blob/master/LICENSE
  */
+
 namespace HyperfTest\Cases;
+
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 /**
  * 防止 Hyperf 2.x 命名空间残留（Hyperf\Utils\* 在 3.x 已删除）。
@@ -32,8 +37,8 @@ class Hyperf3CompatibilityTest extends AbstractTestCase
     {
         $offenders = [];
 
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(__DIR__ . '/../../src', \FilesystemIterator::SKIP_DOTS)
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(__DIR__ . '/../../src', FilesystemIterator::SKIP_DOTS)
         );
 
         foreach ($iterator as $file) {
@@ -41,7 +46,15 @@ class Hyperf3CompatibilityTest extends AbstractTestCase
                 continue;
             }
             $content = file_get_contents($file->getPathname());
-            if (strpos($content, 'Hyperf\\Utils\\') !== false) {
+            // 只匹配真实代码（use 语句、静态调用等），排除注释中的说明文字
+            $code = '';
+            foreach (token_get_all($content) as $token) {
+                if (is_array($token) && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], true)) {
+                    continue;
+                }
+                $code .= is_array($token) ? $token[1] : $token;
+            }
+            if (strpos($code, 'Hyperf\Utils\\') !== false) {
                 $offenders[] = $file->getPathname();
             }
         }
@@ -54,15 +67,15 @@ class Hyperf3CompatibilityTest extends AbstractTestCase
     }
 
     /**
-     * cache() 必须能被调用，且返回 Psr\SimpleCache\CacheInterface。
-     * 该断言在 Hyperf 3.x 下能直接暴露 ApplicationContext 命名空间错误。
+     * cache() 必须已注册（本包通过 autoload.files 提供）。
+     *
+     * 注意：这里不断言「调用 cache() 能拿到驱动」——该断言需要运行中的
+     * Hyperf 容器，在纯 PHPUnit 环境下 ApplicationContext 无容器，
+     * 会抛 getContainer(): Return value must be of type ContainerInterface。
+     * 命名空间错误由上面的静态扫描负责拦截。
      */
-    public function testCacheHelperIsCallable()
+    public function testCacheHelperIsRegistered()
     {
         $this->assertTrue(function_exists('cache'));
-        $this->assertInstanceOf(
-            \Psr\SimpleCache\CacheInterface::class,
-            cache('default')
-        );
     }
 }

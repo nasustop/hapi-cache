@@ -9,6 +9,7 @@ declare(strict_types=1);
  * @contact  xupengfei@xupengfei.net
  * @license  https://github.com/nasustop/hapi-cache/blob/master/LICENSE
  */
+
 namespace Nasustop\HapiCache;
 
 use DateInterval;
@@ -41,7 +42,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $this->packer->unpack($res);
     }
 
-    public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
+    public function set(string $key, mixed $value, null|DateInterval|int $ttl = null): bool
     {
         $seconds = $this->secondsUntil($ttl);
         $res = $this->packer->pack($value);
@@ -77,7 +78,7 @@ class MemcachedDriver extends Driver implements KeyCollectorInterface
         return $result;
     }
 
-    public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
+    public function setMultiple(iterable $values, null|DateInterval|int $ttl = null): bool
     {
         if (! is_array($values)) {
             throw new InvalidArgumentException('The values is invalid!');

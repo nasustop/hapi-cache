@@ -9,6 +9,7 @@ declare(strict_types=1);
  * @contact  xupengfei@xupengfei.net
  * @license  https://github.com/nasustop/hapi-cache/blob/master/LICENSE
  */
+
 namespace Nasustop\HapiCache;
 
 use DateInterval;
@@ -57,7 +58,7 @@ class MemoryDriver extends Driver implements KeyCollectorInterface
         return $this->packer->unpack($res['data']);
     }
 
-    public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
+    public function set(string $key, mixed $value, null|DateInterval|int $ttl = null): bool
     {
         $value = $this->packer->pack($value);
         if (mb_strlen($value) > $this->row_size) {
@@ -98,7 +99,7 @@ class MemoryDriver extends Driver implements KeyCollectorInterface
         return $result;
     }
 
-    public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
+    public function setMultiple(iterable $values, null|DateInterval|int $ttl = null): bool
     {
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl);

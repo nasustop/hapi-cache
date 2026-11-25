@@ -9,13 +9,16 @@ declare(strict_types=1);
  * @contact  xupengfei@xupengfei.net
  * @license  https://github.com/nasustop/hapi-cache/blob/master/LICENSE
  */
+
 namespace HyperfTest\Cases;
 
+use Hyperf\Cache\Driver\RedisDriver;
 use Hyperf\Contract\ConfigInterface;
 use Nasustop\HapiCache\Listener\BeforeMainServerStartListener;
 use Nasustop\HapiCache\Listener\BeforeWorkerStartListener;
 use Nasustop\HapiCache\MemoryDriver;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 
 /**
  * 监听器解析 cache 配置的健壮性。
@@ -42,7 +45,7 @@ class ListenerCacheConfigTest extends TestCase
             'default' => 'default',
             'stores' => [
                 'default' => [
-                    'driver' => \Hyperf\Cache\Driver\RedisDriver::class,
+                    'driver' => RedisDriver::class,
                 ],
                 'memory' => [
                     'driver' => MemoryDriver::class,
@@ -55,7 +58,7 @@ class ListenerCacheConfigTest extends TestCase
         $this->assertInstanceOf(BeforeMainServerStartListener::class, $listener);
 
         // 通过反射调用私有解析方法，确保不抛 TypeError 且能取到 memory store
-        $method = new \ReflectionMethod($listener, 'resolveMemoryStoreConfig');
+        $method = new ReflectionMethod($listener, 'resolveMemoryStoreConfig');
         $method->setAccessible(true);
         $result = $method->invoke($listener);
 
@@ -70,7 +73,7 @@ class ListenerCacheConfigTest extends TestCase
     {
         $config = $this->createConfig([
             'default' => [
-                'driver' => \Hyperf\Cache\Driver\RedisDriver::class,
+                'driver' => RedisDriver::class,
             ],
             'memory' => [
                 'driver' => MemoryDriver::class,
@@ -79,7 +82,7 @@ class ListenerCacheConfigTest extends TestCase
         ]);
 
         $listener = new BeforeWorkerStartListener($config);
-        $method = new \ReflectionMethod($listener, 'resolveMemoryStoreConfig');
+        $method = new ReflectionMethod($listener, 'resolveMemoryStoreConfig');
         $method->setAccessible(true);
         $result = $method->invoke($listener);
 
@@ -96,13 +99,13 @@ class ListenerCacheConfigTest extends TestCase
             'default' => 'default',
             'stores' => [
                 'default' => [
-                    'driver' => \Hyperf\Cache\Driver\RedisDriver::class,
+                    'driver' => RedisDriver::class,
                 ],
             ],
         ]);
 
         $listener = new BeforeMainServerStartListener($config);
-        $method = new \ReflectionMethod($listener, 'resolveMemoryStoreConfig');
+        $method = new ReflectionMethod($listener, 'resolveMemoryStoreConfig');
         $method->setAccessible(true);
 
         $this->assertSame([], $method->invoke($listener));
